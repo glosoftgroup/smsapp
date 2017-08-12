@@ -41,7 +41,8 @@ node-*
 .idea/
 .DS_Store
 
-# virtualenv
+# virtualenv and development
+.idea
 .venvsmsapp/*
 
 # Static files in Vagrant environment
