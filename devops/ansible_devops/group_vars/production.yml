@@ -1,0 +1,11 @@
+---
+APP_ENVIRONMENT: production
+APP_VERSION: master
+APP_PORT: 80
+local_env:
+    DJANGO_SETTINGS_MODULE:
+
+DOMAIN_NAME: smsapp.glosoftgroup.com
+
+sumologic_collector_accessid: suLdAXVyhxXDfW
+sumologic_collector_accesskey: dUTO0CY0akVzSj32YkxdyKAskl3wmbilAEAbcEMaDxajzYqJ3VTN5IGGlYvifgdX

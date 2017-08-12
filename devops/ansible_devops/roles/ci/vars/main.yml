@@ -1,0 +1,6 @@
+---
+HOME_DIR: ~
+APP_DIR: "~/clone"
+VIRTUALENV_DIR: "{{ HOME_DIR }}/.virtualenvs"
+VIRTUALENV: "{{ VIRTUALENV_DIR }}/"
+

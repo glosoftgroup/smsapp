@@ -1,0 +1,17 @@
+[development:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_pass=vagrant
+
+
+[app_servers]
+10.0.0.50
+
+[db_servers]
+10.0.0.50
+
+[elasticbeanstalk]
+ansible_host=localhost ansible_user=vagrant
+
+[development:children]
+app_servers
+db_servers

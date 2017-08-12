@@ -1,0 +1,12 @@
+[app_servers]
+ec2-52-215-81-109.eu-west-1.compute.amazonaws.com
+
+[db_servers]
+ec2-52-215-81-109.eu-west-1.compute.amazonaws.com
+
+[staging:children]
+app_servers
+db_servers
+
+[staging:vars]
+ansible_ssh_user=ubuntu

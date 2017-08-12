@@ -1,0 +1,92 @@
+---
+- hosts: elasticbeanstalk
+  connection: local
+  gather_facts: no
+  sudo: no
+  serial: 1
+  vars_files:
+    - ../ansible_devops/group_vars/all.yml
+    - ../ansible_devops/group_vars/{{ SETTINGS }}.yml
+
+  pre_tasks:
+    - name: Check active git branch
+      local_action: shell git branch | awk '/^\*/{print $2}'
+      register: gitbranch
+    - debug: msg="{{ gitbranch.stdout }}"
+
+    - name: Check Git branch in config
+      local_action: shell awk -F ":" 'NR==2{ print $1 }' $(pwd)/../../.elasticbeanstalk/dev_configs/{{ EB_CONFIG }}_config.yml | sed s/" "//g
+      register: config_git_branch
+    - debug: msg="{{ config_git_branch.stdout }}"
+
+    - name: Determine if you are in the correct branch as specified in the config file
+      debug: msg="You are attempting to deploy from a different git branch [{{ gitbranch.stdout }}] compared to the one specified in the config [{{ config_git_branch.stdout }}]."
+      failed_when:
+        - gitbranch.stdout != config_git_branch.stdout
+
+    - name: Check Application name
+      local_action: shell awk '/application_name:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: app_name
+    - debug: msg="{{ app_name.stdout }}"
+
+    - name: Check environment name
+      local_action: shell awk '/environment:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: env_name
+    - debug: msg="{{ env_name.stdout }}"
+
+    - name: Check Default environment
+      local_action: shell awk '/default_region:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: region
+    - debug: msg="{{ region.stdout }}"
+
+    - name: Check Profile
+      local_action: shell awk '/profile:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: profile
+    - debug: msg="{{ profile.stdout }}"
+
+    - name: Check git local HEAD hash
+      local_action: shell git show-ref --verify refs/heads/{{ gitbranch.stdout}} | awk '{ print $1 }'
+      register: local_hash
+    - debug: msg="{{ local_hash.stdout }}"
+
+    - name: Check git upstream hash
+      local_action: shell git ls-remote origin -h refs/heads/{{ gitbranch.stdout}} | awk  'NR==1{ print $1 }'
+      register: upstream_hash
+    - debug: msg="{{ upstream_hash.stdout }}"
+
+    - name: Determine if to continue with creating environment
+      debug: msg="Local changes not in upstream. Run 'git push or pull to fix this'"
+      failed_when:
+        - upstream_hash.stdout != local_hash.stdout
+
+    - name: Make sure you are in the right App and env
+      shell: cd $(pwd)/../../ && eb init {{app_name.stdout}} --profile="{{profile.stdout}}" --region="{{region.stdout}}" -p=Python && echo $(pwd)/../../
+      register: eb_init
+    - debug: msg="{{ eb_init.stdout }}"
+
+    - name: Check EB status
+      local_action: shell eb status --profile={{profile.stdout}}
+      register: eb_status
+    - debug: msg="{{ eb_status.stdout }}"
+
+    - name: Send notification message via Slack
+      local_action:
+        module: slack
+        domain: "{{SLACK_DOMAIN}}"
+        token: "{{SLACK_TOKEN}}"
+        username: "{{ lookup('env', 'USER') }}"
+        msg: >
+          Creating HERMES STATUS
+          Application -> "{{ app_name.stdout }}"
+          Environment -> "{{ env_name.stdout }}"
+          Git branch -> "{{ config_git_branch.stdout }}"
+          User -> ({{ lookup('env', 'USER') }})
+          Comit -> "{{ upstream_hash.stdout }}"
+          Profile -> "{{ profile.stdout }}"
+      ignore_errors: no
+      tags: slack
+
+    - name: Attempt to create env
+      shell: cd $(pwd)/../../ && eb create "{{env_name.stdout}}" --profile="{{profile.stdout}}" --cfg="{{ SETTINGS }}"
+      register: eb_create
+    - debug: msg="{{ eb_create.stdout }}"

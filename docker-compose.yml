@@ -1,0 +1,30 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_DB=smsapp
+      - POSTGRES_PASSWORD=smsapp
+      - POSTGRES_USER=smsapp
+    ports:
+      - 5550:5432
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - ./:/usr/src/app
+    links:
+      - db
+    ports:
+      - 8095:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=configuration.settings.docker.development
+      - VIRTUAL_HOST=http://*/*
+      - C_FORCE_ROOT=true
+      - DEV_LOGIN_USERNAME=admin
+      - DEV_LOGIN_PASSWORD=admin
+      - DEV_LOGIN_EMAIL=admin@example.com

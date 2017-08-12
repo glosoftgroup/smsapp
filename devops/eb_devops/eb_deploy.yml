@@ -1,0 +1,122 @@
+---
+- hosts: elasticbeanstalk
+  connection: local
+  gather_facts: no
+  sudo: no
+  serial: 1
+  vars_files:
+    - ../ansible_devops/group_vars/all.yml
+    - ../ansible_devops/group_vars/{{ SETTINGS }}.yml
+
+  pre_tasks:
+    - name: Check active git branch
+      local_action: shell git branch | awk '/^\*/{print $2}'
+      register: gitbranch
+    - debug: msg="{{ gitbranch.stdout }}"
+
+    - name: Check Profile
+      local_action: shell awk '/profile:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: profile
+    - debug: msg="{{ profile.stdout }}"
+
+    - name: Check environment name
+      local_action: shell awk '/environment:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: env_name
+    - debug: msg="{{ env_name.stdout }}"
+
+    - name: Check Application name
+      local_action: shell awk '/application_name:/{print $2} ' $(pwd)/../../.elasticbeanstalk/dev_configs/{{EB_CONFIG}}_config.yml
+      register: app_name
+    - debug: msg="{{ app_name.stdout }}"
+
+    - name: Check Git branch in config
+      local_action: shell awk -F ":" 'NR==2{ print $1 }' $(pwd)/../../.elasticbeanstalk/dev_configs/{{ EB_CONFIG }}_config.yml | sed s/" "//g
+      register: config_git_branch
+    - debug: msg="{{ config_git_branch.stdout }}"
+
+    - name: Determine if you are in the correct branch as specified in the config file
+      debug: msg="You are attempting to deploy from a different git branch [{{ gitbranch.stdout }}] compared to the one specified in the config [{{ config_git_branch.stdout }}]."
+      failed_when:
+        - gitbranch.stdout != config_git_branch.stdout
+
+    - name: Check EB current eb status
+      local_action: shell eb status "{{ env_name.stdout }}"
+      register: eb_status
+    - debug: msg="{{ eb_status.stdout }}"
+
+    - name: use current environment specified in config
+      local_action: shell eb use "{{ env_name.stdout }}"
+      register: eb_use
+    - debug: msg="{{ eb_use.stdout }}"
+
+    - name: Check EB current eb status "{{ env_name.stdout }}"
+      local_action: shell eb status | awk '{ print }'
+      register: eb_status
+    - debug: msg="{{ eb_status.stdout }}"
+
+
+    - name: Confirm deployment and environment
+#      when: (APP_ENVIRONMENT == "production") and ("{{ gitbranch.stdout }}" != "master")
+      pause: prompt="WARNING -> You are about to deploy to "{{ env_name.stdout }}" while in the branch "{{ gitbranch.stdout }}". Action? (a)bort/(c)ontinue:"
+      register: deployment_confirmation
+
+    - name: Determine if to continue with deployment
+      debug: msg="Deployment aborted by user"
+      failed_when:
+        - deployment_confirmation.user_input != "c"
+        - deployment_confirmation.user_input != "C"
+
+    - name: Check git local HEAD hash
+      local_action: shell git show-ref --verify refs/heads/{{ gitbranch.stdout }} | awk '{ print $1 }'
+      register: local_hash
+    - debug: msg="{{ local_hash.stdout }}"
+
+    - name: Check git upstream hash
+      local_action: shell git ls-remote origin -h refs/heads/{{ gitbranch.stdout}} | awk  'NR==1{ print $1 }'
+      register: upstream_hash
+    - debug: msg="{{ upstream_hash.stdout }}"
+
+    - name: Determine if to continue with deployment
+      debug: msg="Local changes not in upstream. Run 'git push or pull to fix this'"
+      failed_when:
+        - upstream_hash.stdout != local_hash.stdout
+
+    - name: Copy EB environment config
+      local_action: shell cat $(pwd)/../../.elasticbeanstalk/dev_configs/{{ EB_CONFIG }}_config.yml> $(pwd)/../../.elasticbeanstalk/config.yml
+      register: pwd
+    - debug: msg="{{ pwd.stdout }}"
+
+    - name: log deployment to newrelic
+      newrelic_deployment: >
+        token={{ NEWRELIC_API_KEY }}
+        app_name="{{newrelic_app_name}} ({{APP_ENVIRONMENT}})"
+        user={{ lookup('env', 'USER')}}
+        revision="{{ upstream_hash.stdout }}"
+      when: APP_ENVIRONMENT != "development"
+      run_once: yes
+      ignore_errors: yes
+      tags:
+        - log_deploy
+
+    - name: Send notification message via Slack
+      local_action:
+        module: slack
+        domain: "{{SLACK_DOMAIN}}"
+        token: "{{SLACK_TOKEN}}"
+        username: "{{ lookup('env', 'USER') }}"
+        msg: >
+          Deploying HERMES STATUS
+          Application -> "{{ app_name.stdout }}"
+          Environment -> "{{ env_name.stdout }}"
+          Git branch -> "{{ config_git_branch.stdout }}"
+          User -> ({{ lookup('env', 'USER') }})
+          Comit -> "{{ upstream_hash.stdout }}"
+          Profile -> "{{ profile.stdout }}"
+
+      ignore_errors: yes
+      tags: slack
+
+    - name: Deploy to eb
+      local_action: shell eb deploy "{{env_name.stdout}}" -l "{{ upstream_hash.stdout }}"
+      register: deploy_output
+    - debug: msg="{{ deploy_output.stdout }}"

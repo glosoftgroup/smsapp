@@ -1,0 +1,41 @@
+---
+APP_NAME: smsapp
+APP_REPOSITORY: git@github.com:africanfinancebusiness/hermes-status.git
+DB_PASSWORD: secretpass
+WEZATELE_SLACK_TOKEN: nxHdNzbCUWS53I4Tmep6n8d8
+APP_USER: "{{ ansible_ssh_user }}"
+APP_HOME: "/home/{{ APP_USER }}"
+APP_DIR: "{{ APP_HOME }}/{{ APP_NAME }}"
+APP_VIRTUALENV: "{{ APP_HOME }}/.virtualenvs/{{ APP_NAME }}"
+APP_STATIC_DIR: "{{ APP_DIR }}/static"
+APP_MEDIA_DIR: "{{ APP_DIR }}/media"
+APP_PORT: 80
+SECURE_APP_PORT: 443
+DB_NAME: "{{ APP_NAME }}"
+DB_USER: "hermes-user"
+WsgiDirectroy: "{{ APP_HOME }}/"
+RABBIT_MONIT_INTERVAL: 600 #in seconds
+
+# if deploying to a box where default user is root(eg, Angani), celery wont work --> http://bit.ly/XWqrJS
+# in such situatition, set ROOT_USER_BOX: true
+ROOT_USER_BOX: false
+CELERY_USER: "celery_user"
+CELERY_WORKERS: 2
+GROUP: admin
+
+SLACK_TOKEN: 'T053DS2RM/B07HBMV4K/oeXX0ghYyQECwhlAu1nta2MZ'
+SLACK_DOMAIN: 'jumoteam.slack.com'
+
+
+GUNICORN_PORT: 3000
+GUNICORN_BIND_ADDRESS: "0.0.0.0:{{ GUNICORN_PORT }}"
+GUNICORN_WORKERS: 3
+
+DEPLOY_USER: ubuntu
+NGINX_USER: www-data
+
+DOMAIN_NAME: dev-smsapp.glosoftgroup.com
+
+NEWRELIC_LICENCE_KEY: c2d9e446c23d768771963a6bf4edcac152da557a
+NEWRELIC_API_KEY: 4e9bc1867aa4b650bfe74a686abd5676711161892da557a
+newrelic_app_name: SMS APP

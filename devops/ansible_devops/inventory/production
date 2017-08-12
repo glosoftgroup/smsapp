@@ -1,0 +1,12 @@
+[app_servers]
+172.31.18.93
+
+[db_servers]
+172.31.18.93
+
+[production:children]
+app_servers
+db_servers
+
+[production:vars]
+ansible_ssh_user=ubuntu

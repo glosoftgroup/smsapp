@@ -1,0 +1,69 @@
+# Compiled Python modules
+*.pyo
+*.pyc
+
+# SQLite
+*.db
+*.s3db
+*.sqlite3
+
+# Mercurial backup files
+*.orig
+*.rej
+
+*components
+*node_modules
+*npm-debug.log
+
+# Supervisor files
+supervisord.log
+supervisord.pid
+supervisord.conf
+
+# Emacs save files
+*~
+\#*
+.\#*
+
+# Vim n co
+*.swp
+.ropeproject/
+
+# Vagrant private files
+.vagrant/*
+log
+celerybeat-schedule
+celerybeat.pid
+erl_crash.dump
+build/
+node
+node-*
+.idea/
+.DS_Store
+
+# virtualenv
+.venvsmsapp/*
+
+# Static files in Vagrant environment
+/static
+/django_extensions
+/debug_toolbar
+/admin
+/django_ussd_static
+
+*.*.swp
+.directory
+local_development.py
+local_manage.py
+*.kate-swp
+*.swo
+
+celerybeat.pid
+.kateproject
+.kateproject.d/
+
+
+# Ignore translation file, this a quick fix to our translation problem
+# Django translation files
+django.mo
+django.pot

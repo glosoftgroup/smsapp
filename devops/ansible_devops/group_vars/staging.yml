@@ -1,0 +1,10 @@
+---
+APP_ENVIRONMENT: staging
+APP_VERSION: master
+APP_PORT: 80
+local_env:
+    DJANGO_SETTINGS_MODULE:
+DOMAIN_NAME: smsapp-staging.glosoftgroup.com
+
+sumologic_collector_accessid: sucEu1kQ9n4Rlc
+sumologic_collector_accesskey: 863UujiEkXTxd8X05T5HshbmuC0wIob92rlOjBTtQRoeepuoTwpyOrWVp7XJbnV5

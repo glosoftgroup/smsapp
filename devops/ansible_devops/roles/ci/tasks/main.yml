@@ -1,0 +1,11 @@
+---
+
+- name: Ensure pip is up-to-date
+  command: pip install --upgrade pip
+
+- name: Install application requirements
+  pip: >
+    requirements={{ APP_DIR }}/requirements/development.txt
+    virtualenv={{ APP_VIRTUALENV }}
+  tags:
+    - pip

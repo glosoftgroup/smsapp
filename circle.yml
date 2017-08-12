@@ -1,0 +1,12 @@
+dependencies:
+  pre:
+    - cd ~/smsapp
+    - pip install flake8==3.3.0
+    - pip install -r requirements/circleci.txt
+
+test:
+  pre:
+    - python manage.py check --settings="configuration.settings.ci"
+  override:
+    - ./devops/ansible_devops/scripts/commit-checks.sh
+    - python manage.py test --settings="configuration.settings.ci"

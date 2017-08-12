@@ -1,0 +1,30 @@
+---
+# Create admin group and deploy user. To be run against a newly
+# provisioned Digital Ocean server which only has a root user.
+
+- hosts: elk_servers
+  tasks: 
+    - name: Create admin group
+      group: name=admin state=present
+
+    - name: Enable passwordless sudo for admin group
+      lineinfile: 
+        dest=/etc/sudoers state=present 
+        regexp='^%admin ALL\=' line='%admin ALL=(ALL) NOPASSWD:ALL' 
+        validate='visudo -cf %s' backup=yes
+
+    - name: Create deploy user
+      user: name={{ DEPLOY_USER }} state=present groups=admin append=yes
+
+    - name: Install SSH keys for authorized users
+      authorized_key: 
+        user: "{{ DEPLOY_USER }}"
+        key: "{{ lookup('file', 'item') }}"
+      with_fileglob: 
+        roles/common/files/public_keys/*.pub
+
+    - name: Disable SSH root login
+      lineinfile: dest=/etc/ssh/sshd_config line="PermitRootLogin no"
+                state=present backup=yes
+                
+                
