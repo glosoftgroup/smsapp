@@ -68,3 +68,9 @@ celerybeat.pid
 # Django translation files
 django.mo
 django.pot
+
+# ignore virtualenv
+.venv
+.elasticbeanstalk/config.yml
+log
+*.pyc
