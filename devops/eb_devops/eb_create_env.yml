@@ -76,7 +76,7 @@
         token: "{{SLACK_TOKEN}}"
         username: "{{ lookup('env', 'USER') }}"
         msg: >
-          Creating HERMES STATUS
+          Creating SMS APP
           Application -> "{{ app_name.stdout }}"
           Environment -> "{{ env_name.stdout }}"
           Git branch -> "{{ config_git_branch.stdout }}"
