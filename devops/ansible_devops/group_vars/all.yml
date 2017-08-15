@@ -12,12 +12,12 @@ APP_MEDIA_DIR: "{{ APP_DIR }}/media"
 APP_PORT: 80
 SECURE_APP_PORT: 443
 DB_NAME: "{{ APP_NAME }}"
-DB_USER: "hermes-user"
+DB_USER: "smsapp"
 WsgiDirectroy: "{{ APP_HOME }}/"
 RABBIT_MONIT_INTERVAL: 600 #in seconds
 
-# if deploying to a box where default user is root(eg, Angani), celery wont work --> http://bit.ly/XWqrJS
-# in such situatition, set ROOT_USER_BOX: true
+# if deploying to a box where default user is root(eg. root), celery wont work --> http://bit.ly/XWqrJS
+# in such situation, set ROOT_USER_BOX: true
 ROOT_USER_BOX: false
 CELERY_USER: "celery_user"
 CELERY_WORKERS: 2
