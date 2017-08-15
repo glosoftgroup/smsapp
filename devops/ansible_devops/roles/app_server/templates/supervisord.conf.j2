@@ -2,7 +2,7 @@
 
 
 [inet_http_server]         ; inet (TCP) server disabled by default
-port=127.0.0.1:9012        ; (ip_address:port specifier, *:port for all iface)
+port=127.0.0.1:9050        ; (ip_address:port specifier, *:port for all iface)
 
 [supervisord]
 logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
@@ -16,7 +16,7 @@ childlogdir=/var/log/supervisor            ; ('AUTO' child log dir, default $TEM
 supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
 [supervisorctl]
-serverurl=http://127.0.0.1:9012 ; use an http:// url to specify an inet socket
+serverurl=http://127.0.0.1:9050 ; use an http:// url to specify an inet socket
 
 ; The [include] section can just contain the "files" setting.  This
 ; setting can list multiple files (separated by whitespace or

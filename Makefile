@@ -83,7 +83,7 @@ shell:
 # use sqlite for tests, its faster.
 test:
 	ansible app_servers -i devops/ansible_devops/inventory/$(env) -m shell -a \
-	". ~/.virtualenvs/hermes_status/bin/activate && \
+	". ~/.virtualenvs/smsapp/bin/activate && \
 	cd /vagrant && \
 	python manage.py test --settings=configuration.settings.test --noinput"
 flush:
@@ -97,7 +97,7 @@ run2:
 	@sudo killall -9 gunicorn &
 	@python manage.py check --settings=configuration.settings.development &
 	@python manage.py collectstatic --noinput --settings=configuration.settings.development  &
-	@python manage.py migrate hermes_status --settings=configuration.settings.development --verbosity 3
+	@python manage.py migrate smsapp --settings=configuration.settings.development --verbosity 3
 	@python manage.py runserver 0.0.0.0:3000 --settings=configuration.settings.development
 
 mk:
