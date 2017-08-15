@@ -9,9 +9,6 @@ ansible_ssh_pass=vagrant
 [db_servers]
 10.0.0.50
 
-[elasticbeanstalk]
-ansible_host=localhost ansible_user=vagrant
-
 [development:children]
 app_servers
 db_servers
