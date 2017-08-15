@@ -14,5 +14,5 @@ if [[ ! $(ansible --version 2> /dev/null) =~ 1\.6 ]]; then
 fi
 
 PYTHONUNBUFFERED=1 ansible-playbook /vagrant/devops/ansible_devops/site.yml \
-    --inventory-file=/vagrant/devops/inventory/development \
+    --inventory-file=/vagrant/devops/ansible_devops/inventory/development \
     --connection=local
