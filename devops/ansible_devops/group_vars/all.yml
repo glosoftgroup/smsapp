@@ -1,6 +1,6 @@
 ---
 APP_NAME: smsapp
-APP_REPOSITORY: git@github.com:africanfinancebusiness/hermes-status.git
+APP_REPOSITORY: git@github.com:glosoftgroup/smsapp.git
 DB_PASSWORD: secretpass
 WEZATELE_SLACK_TOKEN: nxHdNzbCUWS53I4Tmep6n8d8
 APP_USER: "{{ ansible_ssh_user }}"
