@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import structlog
+import logging
+import logging.config
 from django.conf import global_settings
 
 from loglib.logging import KeyValueRenderer
@@ -35,7 +37,7 @@ STAGE = "development"
 ALLOWED_HOSTS = ["*"]
 
 ADMINS = (
-    ('kyrelos obat', 'obat.okello@jumo.world'),
+    ('marete kent', 'maretekent@gmail.com'),
 
 )
 CORS_ORIGIN_ALLOW_ALL = True
@@ -49,6 +51,7 @@ DEFAULT_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
 )
 
@@ -57,7 +60,8 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-
+    'utilities',
+    'loglib',
 )
 
 # maintain the given order, because we want the post-migrate signal for our local app('hermes_status')
@@ -157,10 +161,23 @@ TIME_ZONE = 'Africa/Nairobi'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'environment': {
+            '()': 'utilities.logging_filter.CustomFilter',
+        },
+    },
     'handlers': {
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        'debug_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'log/debug.log',
+            'formatter': 'verbose'
+        },
+        'error_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'log/error.log',
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'DEBUG',
@@ -172,20 +189,30 @@ LOGGING = {
         'verbose': {
             'format': '%(asctime)s %(levelname)s module=%(module)s, '
                       'process_id=%(process)d, %(message)s'
-        }
+        },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['sentry'],
+            'handlers': ['console', 'error_logfile'],
             'level': 'ERROR',
         },
         'api': {
-            'handlers': ['console', 'sentry'],
+            'handlers': ['console', 'debug_logfile'],
             'level': 'DEBUG',
         },
-        'hermes-status': {
-            'handlers': ['console', 'sentry'],
+        'smsapp': {
+            'handlers': ['console', 'debug_logfile'],
             'level': 'DEBUG',
+        },
+        'app_dir': {
+            'handlers': ['console', 'debug_logfile'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'utilities': {
+            'handlers': ['console', 'debug_logfile'],
+            'level': 'DEBUG',
+            'propagate': False
         },
     }
 }
@@ -208,6 +235,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     )
 }
+
+# api key that Console needs to use to call Hermes-sms
+DEFAULT_CUSTOM_API_KEY = 'B+XXazAET/ZGVmYXVsdHN0cm9uZ2tleWZvcnRoZWFwaQ=='
 
 API_KEY = "26un912GIXzK95x9eq8u398u2"
 SLACK_NOTIFICATION_WEBHOOK_URL= "https://hooks.slack.com/services/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"

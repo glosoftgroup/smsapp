@@ -16,6 +16,18 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf.urls.static import static
+from rest_framework import routers
+from django.conf import settings
+
+from app_dir.api import views as v1Views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'api/v1/send-sms', v1Views.MessageRouter.as_view(), name='v1_views_router'),
 ]
+
+urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
