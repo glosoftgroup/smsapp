@@ -62,6 +62,8 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'utilities',
     'loglib',
+    'app_dir.api',
+    'app_dir.core',
 )
 
 # maintain the given order, because we want the post-migrate signal for our local app('hermes_status')
