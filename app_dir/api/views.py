@@ -16,7 +16,7 @@ from structlog import get_logger
 
 from app_dir.api.models import SmsMessage, Network
 from app_dir.api.serializers import MessageSerializer
-from app_dir.core import sendAfricasTalking
+from app_dir.core import SendAfricasTalking
 
 from django.shortcuts import render
 

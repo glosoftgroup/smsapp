@@ -18,11 +18,15 @@ class KeyAuth(authentication.BaseAuthentication):
 
         try:
             incoming_api_key = request.META['HTTP_APIKEY']
+
         except (AttributeError, KeyError):  # Missing Authorization Header
             logger.error(
                 'authentication_response', response="missing api key",
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+            logger.debug('authentication_response', response=request,
+                         status=status.HTTP_401_UNAUTHORIZED)
             raise exceptions.AuthenticationFailed('Unauthorised')
         else:
             if incoming_api_key != self.api_key:
